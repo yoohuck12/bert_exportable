@@ -12,7 +12,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Run BERT on SQuAD 1.1 and SQuAD 2.0."""
+"""Run BERT on SQuAD 1.1 and SQuAD 2.0.
+
+Model can be exported as savedmodel format by using following command.
+```
+python run_squad.py \
+--vocab_file=$BERT_BASE_DIR/vocab.txt \
+--bert_config_file=$BERT_BASE_DIR/bert_config.json \
+--init_checkpoint=$BERT_BASE_DIR/model.ckpt-7550\
+--do_predict=True \
+--predict_file=/Users/yoohyuck/data/korquad_v1/dev_small.json \
+--train_batch_size=12 \
+--learning_rate=3e-5 \
+--num_train_epochs=2.0 \
+--max_seq_length=384 \
+--doc_stride=128 \
+--output_dir=/Users/yoohyuck/data/korquad_v1 \
+--do_export=True \
+--export_dir=/Users/yoohyuck/data/korquad_v1
+```
+
+By using estimator's export_saved_model function, we can export the model.
+"""
 
 from __future__ import absolute_import
 from __future__ import division
@@ -152,6 +173,14 @@ flags.DEFINE_bool(
 flags.DEFINE_float(
     "null_score_diff_threshold", 0.0,
     "If null_score - best_non_null is greater than the threshold predict null.")
+
+flags.DEFINE_bool(
+    "do_export", False,
+    "Whether to export model in saved model.")
+
+flags.DEFINE_string(
+    "export_dir", None,
+    "If do_export is True, then saved model will be saved in this dir.")
 
 
 class SquadExample(object):
@@ -1123,6 +1152,22 @@ def validate_flags_or_throw(bert_config):
         "(%d) + 3" % (FLAGS.max_seq_length, FLAGS.max_query_length))
 
 
+def serving_input_fn():
+    unique_ids = tf.placeholder(tf.int32, [None], name='unique_ids')
+    label_ids = tf.placeholder(tf.int32, [None], name='label_ids')
+    input_ids = tf.placeholder(tf.int32, [None, FLAGS.max_seq_length], name='input_ids')
+    input_mask = tf.placeholder(tf.int32, [None, FLAGS.max_seq_length], name='input_mask')
+    segment_ids = tf.placeholder(tf.int32, [None, FLAGS.max_seq_length], name='segment_ids')
+    input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn({
+        'unique_ids': unique_ids,
+        'label_ids': label_ids,
+        'input_ids': input_ids,
+        'input_mask': input_mask,
+        'segment_ids': segment_ids,
+    })()
+    return input_fn
+
+
 def main(_):
   tf.logging.set_verbosity(tf.logging.INFO)
 
@@ -1274,6 +1319,10 @@ def main(_):
                       FLAGS.n_best_size, FLAGS.max_answer_length,
                       FLAGS.do_lower_case, output_prediction_file,
                       output_nbest_file, output_null_log_odds_file)
+
+    if FLAGS.do_export:
+        estimator._export_to_tpu = False
+        estimator.export_saved_model(FLAGS.export_dir, serving_input_fn, checkpoint_path=FLAGS.init_checkpoint)
 
 
 if __name__ == "__main__":
