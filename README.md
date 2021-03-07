@@ -42,5 +42,24 @@ The given SavedModel SignatureDef contains the following output(s):
 Method name is: tensorflow/serving/predict
 ```
 
+## Serving exported model using tensorflow/serving
 
+```sh
+docker run -p 8500:8500 \
+--mount type=bind,source=/Users/yoohyuck/data/korquad_v1/1614927513,target=/models/korquad_v1/1 \
+-e MODEL_NAME=korquad_v1 \
+-t tensorflow/serving 
+```
+
+## Korquad Client
+
+
+## Run run_squad.py in Docker
+You can run the run_squad in Docker by push image into Docker hub.
+Before pushing image into Docker hub, you should make a repository.
+```sh
+bazel run run_squad_image_push --incompatible_restrict_string_escapes=false
+```
+
+TODO: run it!
 

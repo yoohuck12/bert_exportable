@@ -1,0 +1,6 @@
+[submodule "rules_docker"]
+	path = rules_docker
+	url = https://github.com/bazelbuild/rules_docker
+[submodule "rules_python"]
+	path = rules_python
+	url = https://github.com/bazelbuild/rules_python

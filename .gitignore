@@ -114,3 +114,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Bazel
+/bazel-*
+/user.bazelrc
+
+# swp
+/*.swp

@@ -1,0 +1,71 @@
+load("@rules_python//python:defs.bzl", "py_binary", "py_library")
+load("@io_bazel_rules_docker//python3:image.bzl", "py3_image")
+load("@io_bazel_rules_docker//container:container.bzl", "container_push")
+load("@my_deps//:requirements.bzl", "requirement")
+
+py_library(
+    name="modeling",
+    srcs = [
+        "modeling.py",
+    ],
+    deps = [
+        requirement("tensorflow"),
+        requirement("numpy")
+    ],
+)
+
+py_library(
+    name="optimization",
+    srcs = [
+        "optimization.py",
+    ],
+    deps = [
+        requirement("tensorflow")
+    ],
+)
+
+py_library(
+    name="tokenization",
+    srcs = [
+        "tokenization.py",
+    ],
+    deps = [
+        requirement("tensorflow")
+    ],
+)
+
+py_binary(
+    name="run_squad",
+    srcs = [
+        "run_squad.py",
+    ],
+    deps = [
+        ":modeling",
+        ":optimization",
+        ":tokenization",
+        requirement("tensorflow")
+    ],
+)
+
+py3_image(
+    name = "run_squad_image",
+    srcs = [
+        "run_squad.py",
+    ],
+    base = "@ubuntu_18_04//image",
+    main = "run_squad.py",
+    tags = ["run_squad_latest"],
+    deps = [
+        ":run_squad",
+    ]
+)
+
+container_push(
+	name = "run_squad_image_push",
+	format = "Docker",
+	image = ":run_squad_image",
+	registry = "index.docker.io",
+	repository = "yoohuck12/run_squad",
+	tag = "latest",
+	tags = ["latest"],
+)
