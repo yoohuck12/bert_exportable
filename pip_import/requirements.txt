@@ -41,6 +41,7 @@ six==1.15.0
 tensorboard==1.15.0
 tensorflow==1.15.0
 tensorflow-estimator==1.15.1
+tensorflow-serving-api==2.4.1
 termcolor==1.1.0
 tqdm==4.58.0
 traitlets==4.3.3

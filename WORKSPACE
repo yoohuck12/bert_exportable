@@ -96,4 +96,17 @@ container_pull(
     tag = "18.04",
 )
 
+container_pull(
+    name = "deepo",
+    registry = "index.docker.io",
+    repository = "ufoym/deepo",
+    tag = "cpu"
+)
 
+# Make image with docker/Dockerfile
+container_pull(
+    name = "tensorflow_ubuntu",
+    registry = "index.docker.io",
+    repository = "yoohuck12/ubuntu_with_tf",
+    tag = "latest",
+)

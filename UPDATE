@@ -1,0 +1,1 @@
+- Change base image of run_squad_image from ubuntu_18_04 to tensorflow_python

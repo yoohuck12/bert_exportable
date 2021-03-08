@@ -52,7 +52,7 @@ py3_image(
     srcs = [
         "run_squad.py",
     ],
-    base = "@ubuntu_18_04//image",
+    base = "@tensorflow_ubuntu//image",
     main = "run_squad.py",
     tags = ["run_squad_latest"],
     deps = [

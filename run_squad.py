@@ -698,7 +698,8 @@ def model_fn_builder(bert_config, init_checkpoint, learning_rate,
           scaffold_fn=scaffold_fn)
     elif mode == tf.estimator.ModeKeys.PREDICT:
       predictions = {
-          "unique_ids": unique_ids,
+          # When serving model, Input/Output tensor should be different!
+          "unique_ids": tf.identity(unique_ids),
           "start_logits": start_logits,
           "end_logits": end_logits,
       }
@@ -1154,13 +1155,11 @@ def validate_flags_or_throw(bert_config):
 
 def serving_input_fn():
     unique_ids = tf.placeholder(tf.int32, [None], name='unique_ids')
-    label_ids = tf.placeholder(tf.int32, [None], name='label_ids')
     input_ids = tf.placeholder(tf.int32, [None, FLAGS.max_seq_length], name='input_ids')
     input_mask = tf.placeholder(tf.int32, [None, FLAGS.max_seq_length], name='input_mask')
     segment_ids = tf.placeholder(tf.int32, [None, FLAGS.max_seq_length], name='segment_ids')
     input_fn = tf.estimator.export.build_raw_serving_input_receiver_fn({
         'unique_ids': unique_ids,
-        'label_ids': label_ids,
         'input_ids': input_ids,
         'input_mask': input_mask,
         'segment_ids': segment_ids,
